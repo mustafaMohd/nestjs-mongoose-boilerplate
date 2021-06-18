@@ -24,6 +24,17 @@ export class UsersService {
     const createdUser = await this.userModel.create(userData);
 
 
-    return createdUser;
+    //return createdUser;
+
+    const createdUserCopy = { ...createdUser.toObject() };
+
+    delete createdUserCopy.password;
+    delete createdUserCopy.__v;
+return createdUserCopy;
+
   }
 }
+
+
+    
+    

@@ -16,11 +16,11 @@ user: User;
 @Prop({ required: true, enum: ['access', 'refresh' ]})
 type: string
 
-@Prop({ required: true, unique: true, lowercase: true })
-  email: string;
+@Prop({ required: true })
+  expires: Date;
 
-  @Prop({ required: true })
-  password: string;
+  @Prop({ required: true ,default:false})
+  blacklisted: boolean;
 
   
 }

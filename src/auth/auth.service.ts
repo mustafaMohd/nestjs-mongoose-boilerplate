@@ -1,68 +1,109 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 
 import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
 import moment from 'moment';
+import { Date, Model } from 'mongoose';
+import { ConfigService } from 'src/config/config.service';
 
 import { UsersService } from '../users/users.service';
+import { Token } from './token.model';
 
+export interface IAuthReturnBody {
+  /**
+   * When the token is to expire in seconds
+   */
+  user:{
+    id:string,
+  email:string,
+  fullname:string,
+ role:string,
+  
+},
+  tokens:{
+    access: {
+    
+    
+      token:string,
+      expires:string,
+    },
+    
+    refresh: {
+      token:string,
+      expires:string,
+    };
+  }
+  }
+  export interface ITokenReturnBody {
+  
+    tokens:{
+      access: {
+      
+      
+        token:string,
+        expires:Date,
+      },
+      
+      refresh: {
+        token:string,
+        expires:Date,
+      };
+    }
+    }
 
 @Injectable()
 export class AuthService {
+  
+  
+  
+  
   constructor(
-   
+    @InjectModel(Token.name) private readonly tokenModel: Model<Token>,
     private usersService: UsersService,
    
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private configService: ConfigService
   ) {}
 
-  async signup(signupData): Promise<any> {
-    // const foundUser = await this.userModel.findOne({ email: signupData.email });
+  async register(userData): Promise<any> {
+   
 
-    // if (foundUser) {
-    //   throw new HttpException(
-    //     'Email is already in use',
-    //     HttpStatus.BAD_REQUEST
-    //   );
-    // }
-
-   // const createdProfile = await this.profilesService.createProfile();
-
-    const createdUser = await this.usersService.createUser(signupData);
+    const createdUser = await this.usersService.createUser(userData);
 
     const createdUserCopy = { ...createdUser.toObject() };
 
     delete createdUserCopy.password;
     delete createdUserCopy.__v;
 
-    const payload = {
+    //const payload = {
     //  username: createdUser.username,
-      sub: createdUser._id,
-    };
-
+     // sub: createdUser._id,
+    //};
+//const tokens= this.generateAuthTokens(createdUserCopy)
     return {
       user: createdUserCopy,
- //     token: this.jwtService.sign(payload),
+  //    tokens
     };
   }
-  // const generateAuthTokens = async (user) => {
-  //   const accessTokenExpires = moment().add(config.jwt.accessExpirationMinutes, 'minutes');
-  //   const accessToken = generateToken(user.id, accessTokenExpires, tokenTypes.ACCESS);
+  async generateAuthTokens(user){
+    const accessTokenExpires = moment().add(this.configService.get("ACCESSTOKEN_EXPIRATION_TIME"), 'minutes');
+    const accessToken = this.generateToken(user.id, accessTokenExpires, 'access');
   
-  //   const refreshTokenExpires = moment().add(config.jwt.refreshExpirationDays, 'days');
-  //   const refreshToken = generateToken(user.id, refreshTokenExpires, tokenTypes.REFRESH);
-  //   await saveToken(refreshToken, user.id, refreshTokenExpires, tokenTypes.REFRESH);
+    const refreshTokenExpires = moment().add(this.configService.get("REFRESHTOKEN_EXPIRATION_TIME"), 'days');
+    const refreshToken = this.generateToken(user.id, refreshTokenExpires, 'refresh');
+    await this.saveToken(refreshToken, user.id, refreshTokenExpires, 'refresh');
   
-  //   return {
-  //     access: {
-  //       token: accessToken,
-  //       expires: accessTokenExpires.toDate(),
-  //     },
-  //     refresh: {
-  //       token: refreshToken,
-  //       expires: refreshTokenExpires.toDate(),
-  //     },
-  //   };
-  // };
+    return {
+      access: {
+        token: accessToken,
+        expires: accessTokenExpires.toDate(),
+      },
+      refresh: {
+        token: refreshToken,
+        expires: refreshTokenExpires.toDate(),
+      },
+    };
+  };
 
   async generateToken (userId, expires, type)  {
     const payload = {
@@ -73,9 +114,17 @@ export class AuthService {
     };
     return this.jwtService.sign(payload);
   };
-
+  async verifyToken (token, type){
+   
+    const payload = this.jwtService.verify(token);
+    const tokenDoc = await this.tokenModel.findOne({ token, type, user: payload.sub, blacklisted: false });
+    if (!tokenDoc) {
+      throw new Error('Token not found');
+    }
+    return tokenDoc;
+  };
   async saveToken (token, userId, expires, type, blacklisted = false)  {
-    const tokenDoc = await Token.create({
+    const tokenDoc = await this.tokenModel.create({
       token,
       user: userId,
       expires: expires.toDate(),
@@ -84,14 +133,7 @@ export class AuthService {
     });
     return tokenDoc;
   };
-  // async generateAuthTokens(user: User) {
-  //   return {
-  //     expiresIn: this.configService.get('JWT_EXPIRATION_TIME'),
-  //     accessToken: this.jwtService.sign({ id: user.id }),
-  //     user,
-  //   };
-  // }
-
+  
 
 
 }
