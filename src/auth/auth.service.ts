@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import moment from 'moment';
+import * as moment from 'moment';
 import { Date, Model } from 'mongoose';
 import { ConfigService } from 'src/config/config.service';
 
@@ -75,10 +75,7 @@ export class AuthService {
     delete createdUserCopy.password;
     delete createdUserCopy.__v;
 
-    //const payload = {
-    //  username: createdUser.username,
-     // sub: createdUser._id,
-    //};
+    
 //const tokens= this.generateAuthTokens(createdUserCopy)
     return {
       user: createdUserCopy,
@@ -87,11 +84,13 @@ export class AuthService {
   }
   async generateAuthTokens(user){
     const accessTokenExpires = moment().add(this.configService.get("ACCESSTOKEN_EXPIRATION_TIME"), 'minutes');
-    const accessToken = this.generateToken(user.id, accessTokenExpires, 'access');
+    const accessToken = this.generateToken(user._id.toString(), accessTokenExpires, 'access');
   
     const refreshTokenExpires = moment().add(this.configService.get("REFRESHTOKEN_EXPIRATION_TIME"), 'days');
-    const refreshToken = this.generateToken(user.id, refreshTokenExpires, 'refresh');
-    await this.saveToken(refreshToken, user.id, refreshTokenExpires, 'refresh');
+    const refreshToken = this.generateToken(user._id.toString(), refreshTokenExpires, 'refresh');
+
+
+    await this.saveToken(refreshToken, user._id.toString(), refreshTokenExpires, 'refresh');
   
     return {
       access: {
@@ -105,14 +104,15 @@ export class AuthService {
     };
   };
 
-  async generateToken (userId, expires, type)  {
+   generateToken (userId, expires, type,)  {
+    
     const payload = {
       sub: userId,
       iat: moment().unix(),
-      exp: expires.unix(),
+     // exp: expires.unix(),
       type,
     };
-    return this.jwtService.sign(payload);
+    return this.jwtService.sign(payload,{expiresIn:expires.unix()});
   };
   async verifyToken (token, type){
    

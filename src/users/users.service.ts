@@ -12,7 +12,9 @@ export class UsersService {
     ) {}
 
   async createUser(userData): Promise<any> {
+  
     const foundUser = await this.userModel.findOne({ email: userData.email });
+    
     if (foundUser) {
       throw new HttpException(
         'Email is already in use',
@@ -26,12 +28,21 @@ export class UsersService {
 
     //return createdUser;
 
-    const createdUserCopy = { ...createdUser.toObject() };
+    // const createdUserCopy = { ...createdUser.toObject() };
 
-    delete createdUserCopy.password;
-    delete createdUserCopy.__v;
-return createdUserCopy;
+    // delete createdUserCopy.password;
+    // delete createdUserCopy.__v;
+// return createdUserCopy;
+return createdUser;
 
+  }
+  getById(id: string){
+    return this.userModel.findById(id).exec();
+  }
+  getByEmail(email: string){
+
+    
+    return this.userModel.findOne({email}).exec();
   }
 }
 

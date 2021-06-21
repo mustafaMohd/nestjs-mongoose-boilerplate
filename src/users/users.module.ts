@@ -24,13 +24,13 @@ import { UsersService } from './users.service';
             
             next();
           });
-          schema.methods.comparePasswords = async function (submittedPassword) {
-            const user = this;
+          // schema.methods.comparePasswords = async function (submittedPassword) {
+          //   const user = this;
 
-            await bcrypt.compare(submittedPassword, user.password);
-          };
+          //   await bcrypt.compare(submittedPassword, user.password);
+          // };
           
-          // schema.plugin(require('mongoose-autopopulate'));
+           schema.plugin(require('../config/plugins/toJSON.plugin'));
           return schema;
         },
       },

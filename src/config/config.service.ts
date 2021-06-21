@@ -45,7 +45,7 @@ export class ConfigService {
       APP_URL: joi.string().uri({
         scheme: [/https?/],
       }),
-      WEBTOKEN_SECRET_KEY: joi.string().required(),
+      ACCESSTOKEN_SECRET_KEY: joi.string().required(),
       ACCESSTOKEN_EXPIRATION_TIME: joi.number().default(2400),
       REFRESHTOKEN_EXPIRATION_TIME: joi.number().default(360),
       DB_URL: joi.string().regex(/^mongodb/),

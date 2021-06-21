@@ -10,7 +10,7 @@ export class LoginPayload {
    */
   @IsAlphanumeric()
   @IsNotEmpty()
-  username: string;
+  email: string;
 
   /**
    * Password field
