@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from './config/config.module';
 import { ConfigService } from './config/config.service';
+import { FilmModule } from './film/film.module';
 
 
 @Module({
@@ -18,7 +19,7 @@ import { ConfigService } from './config/config.service';
         useNewUrlParser: true,
         useUnifiedTopology: true,
       } as MongooseModuleAsyncOptions),
-  }), UsersModule,AuthModule, ConfigModule],
+  }), UsersModule,AuthModule, ConfigModule, FilmModule],
   controllers: [AppController],
   providers: [AppService],
 })
