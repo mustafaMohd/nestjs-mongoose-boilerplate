@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { paginate } from 'src/config/plugins/paginate.plugin';
 import { FilmController } from './film.controller';
 import { Film, FilmSchema } from './film.model';
 import { FilmService } from './film.service';
@@ -21,7 +22,7 @@ const slugify = require('slugify')
           
           
            schema.plugin(require('../config/plugins/toJSON.plugin'));
-           schema.plugin(require('../config/plugins/paginate.plugin'));
+          schema.plugin(paginate);
           return schema;
         },
       },

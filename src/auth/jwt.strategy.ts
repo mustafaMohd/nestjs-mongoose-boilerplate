@@ -4,6 +4,7 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 
 import { ConfigService } from "../config/config.service";
 import { UsersService } from "../users/users.service";
+import { tokenTypes } from "src/emums/token.enum";
 
 /**
  * Jwt Strategy Class
@@ -32,18 +33,57 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    * @param {any} done callback to resolve the request user with
    * @returns {Promise<boolean>} whether or not to validate the jwt token
    */
-  async validate({ iat, exp, _id }: JwtPayload, done): Promise<boolean> {
-    const timeDiff = exp - iat;
-    if (timeDiff <= 0) {
-      throw new UnauthorizedException();
-    }
+//   async validate({ iat, exp, _id }: JwtPayload, done): Promise<boolean> {
+//     const timeDiff = exp - iat;
+//     if (timeDiff <= 0) {
+//       throw new UnauthorizedException();
+//     }
 
-    const user = await this.usersService.getById(_id);
+//     const user = await this.usersService.getById(_id);
+//     if (!user) {
+//       throw new UnauthorizedException();
+//     }
+
+//     done(null, user);
+//     return true;
+//   }
+
+async validate(payload: JwtPayload, done): Promise<boolean> {
+   
+   
+    const timeDiff = payload.exp - payload.iat;
+    if (timeDiff <= 0) {
+      throw new UnauthorizedException("token expired please refresh your token");
+    }
+    if (payload.type !== tokenTypes.ACCESS) {
+                 throw new Error('Invalid token type');
+               }
+
+     const user = await this.usersService.getById(payload.sub);
     if (!user) {
       throw new UnauthorizedException();
     }
 
-    done(null, user);
+    done(null,user );
     return true;
   }
+
+
+
+
+//   const jwtVerify = async (payload, done) => {
+//     try {
+//       if (payload.type !== tokenTypes.ACCESS) {
+//         throw new Error('Invalid token type');
+//       }
+//       const user = await User.findById(payload.sub);
+//       if (!user) {
+//         return done(null, false);
+//       }
+//       done(null, user);
+//     } catch (error) {
+//       done(error, false);
+//     }
+//   };
+
 }

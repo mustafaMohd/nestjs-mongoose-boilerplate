@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+const paginate=require('../config/plugins/paginate.plugin')
+
 
 @Schema({
   timestamps: true,

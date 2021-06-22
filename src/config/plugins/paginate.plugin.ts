@@ -1,5 +1,5 @@
 
-const paginate = (schema) => {
+export const paginate = (schema) => {
     /**
      * @typedef {Object} QueryResult
      * @property {Document[]} results - Results found
@@ -66,4 +66,4 @@ const paginate = (schema) => {
     };
   };
   
-  module.exports = paginate;
+  //module.exports = paginate;
