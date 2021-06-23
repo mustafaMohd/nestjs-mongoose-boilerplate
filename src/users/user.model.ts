@@ -18,7 +18,8 @@ export class User extends Document {
   
   @Prop({ required: true, enum: ['admin', 'user' ],default:'user'})
   role: string
-
+  
+  
   isPasswordMatch  = Function;
 //    async function (password:string) {
 //     const user = this;

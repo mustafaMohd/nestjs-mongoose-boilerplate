@@ -1,9 +1,11 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { paginate } from 'src/config/plugins/paginate.plugin';
+import { auth } from 'src/middleware/auth.middleware';
 import { FilmController } from './film.controller';
 import { Film, FilmSchema } from './film.model';
 import { FilmService } from './film.service';
+
 const slugify = require('slugify')
 //import * as slugify from 'slugify';
 @Module({
@@ -32,3 +34,14 @@ const slugify = require('slugify')
   providers: [FilmService]
 })
 export class FilmModule {}
+// export class FilmModule implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer
+//       .apply(auth("manageFilms")).exclude(
+//         { path: 'film', method: RequestMethod.GET },
+//         { path: 'film/:id', method: RequestMethod.GET }
+        
+//       )
+//       .forRoutes(FilmController);
+//   }
+// }

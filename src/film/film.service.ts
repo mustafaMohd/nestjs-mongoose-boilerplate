@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Film } from './film.model';
@@ -36,12 +36,36 @@ export class FilmService {
         const limit = options.limit && parseInt(options.limit, 10) > 0 ? parseInt(options.limit, 10) : 10;
         const page = options.page && parseInt(options.page, 10) > 0 ? parseInt(options.page, 10) : 1;
         const skip = (page - 1) * limit;
-       
+        const countFilms = await this.filmModel.countDocuments(filter).exec();
        const films = await this.filmModel.find(filter).sort(sort).skip(skip).limit(limit);
-        return films;
+       const totalPages = Math.ceil(countFilms / limit);
+        return {films,page,limit,totalPages,countFilms};
     
       }      
      
-
+      async getFilmById(id){
+        const film = await this.filmModel.findById(id);
+      return film;
+    
+      }
+     
+      async deleteFilm(id) {
+        const film = await this.getFilmById(id);
+        if (!film) {
+          throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+        }
+        await film.remove();
+        return film;
+      };
+      async update (id, updateBody){
+        const film = await this.getFilmById(id);
+        if (!film) {
+          throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+        }
+        
+        Object.assign(film, updateBody);
+        await film.save();
+        return film;
+      };
 
     }

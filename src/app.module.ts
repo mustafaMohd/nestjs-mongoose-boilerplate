@@ -7,6 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from './config/config.module';
 import { ConfigService } from './config/config.service';
 import { FilmModule } from './film/film.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './guards/roles.guard';
 
 
 @Module({
@@ -21,6 +23,9 @@ import { FilmModule } from './film/film.module';
       } as MongooseModuleAsyncOptions),
   }), UsersModule,AuthModule, ConfigModule, FilmModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, {
+    provide: APP_GUARD,
+    useClass: RolesGuard,
+  }],
 })
 export class AppModule {}
