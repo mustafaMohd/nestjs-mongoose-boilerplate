@@ -1,6 +1,6 @@
-import { parse } from "dotenv";
-import * as joi from "joi";
-import * as fs from "fs";
+import { parse } from 'dotenv';
+import * as joi from 'joi';
+import * as fs from 'fs';
 
 /**
  * Key-value mapping
@@ -38,10 +38,7 @@ export class ConfigService {
      * A schema to validate envConfig against
      */
     const envVarsSchema: joi.ObjectSchema = joi.object({
-      APP_ENV: joi
-        .string()
-        .valid("dev", "prod")
-        .default("dev"),
+      APP_ENV: joi.string().valid('dev', 'prod').default('dev'),
       APP_URL: joi.string().uri({
         scheme: [/https?/],
       }),
@@ -54,9 +51,8 @@ export class ConfigService {
     /**
      * Represents the status of validation check on the configuration file
      */
-    const { error, value: validatedEnvConfig } = envVarsSchema.validate(
-      envConfig,
-    );
+    const { error, value: validatedEnvConfig } =
+      envVarsSchema.validate(envConfig);
     if (error) {
       throw new Error(`Config validation error: ${error.message}`);
     }
